@@ -13,8 +13,6 @@ $liga->Autorise($liga->url['login']);
 
 if ($liga->GetStatusAutorise() === false ) {
 
-	
-
 	echo $liga->CheckUrl($liga->url['login']);
 
 

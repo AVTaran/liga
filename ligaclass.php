@@ -9,7 +9,6 @@
 //http://www.fantasyland.ru/cgi/show_big_loc.php?i=CapitalMines/mine.jpg
 
 
-
 class LigaClass {
 
 	// Список урлов которые могут понадобится
@@ -99,6 +98,7 @@ class LigaClass {
 	// 
 	function CheckUrl($url) {
 
+		// устанавливаем парамтры курл
 		curl_setopt($this->CurlSession, CURLOPT_URL, $url);
 		curl_setopt($this->CurlSession, CURLOPT_HEADER, 1); // читать заголовок
 		curl_setopt($this->CurlSession, CURLOPT_NOBODY, 1); // читать ТОЛЬКО заголовок без тела

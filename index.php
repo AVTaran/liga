@@ -7,38 +7,35 @@ define('_PATH_COOKIES_', dirname(__FILE__).'/cookies.txt');
 
 include('./curlclass.php');
 
-
 $cc = new cURL(TRUE, _PATH_COOKIES_); 
 
-$AuthSt = ChekAuthSt();
-
-if (
-		!file_exists(_PATH_COOKIES_) 
-	  OR 
-		(time()-filemtime(_PATH_COOKIES_) > 900)
-	  OR 
-		!$AuthSt
-	) {
-	//echo "В последний раз файл $filename был изменен: " . date ("F d Y H:i:s.", filemtime($filename));
+//if (!file_exists(_PATH_COOKIES_) OR (time()-filemtime(_PATH_COOKIES_) > 90) ) {
+if (!$AuthSt = ChekAuthSt()) {
 	$page = $cc->post(_DOMEN_.'login.php', 'login=AutoRun&password=fv4eh6'); 
 	echo 'Авторизовались';
+
 } else {
+	//echo "В последний раз файл $filename был изменен: " . date ("F d Y H:i:s.", filemtime(_PATH_COOKIES_));
 	//echo 'Нас здесь помнят :-)';
+
 }
 echo '<br>';
+
+
+
 
 
 if ($_POST['submit']=='GO' ) {
 
 	switch ($_POST['action']) {
 		case 'work_start':
-			echo 'Отправляем народ работать на work_start.php с value = '.$_POST['value'];
+			//echo 'Отправляем народ работать на work_start.php с value = '.$_POST['value'];
 			echo '<br>';
 			$work_start = $cc->post(_DOMEN_.'cgi/work_start.php', 'value='.$_POST['value']); 
 		break;
 
 		case 'train_start':
-			echo _DOMEN_.'cgi/train_start.php?unit_id='.$_POST['unit_id'].'&code='.$_POST['value'].'';
+			//echo _DOMEN_.'cgi/train_start.php?unit_id='.$_POST['unit_id'].'&code='.$_POST['value'].'';
 			echo '<br>';
 			$work_start = $cc->get(_DOMEN_.'cgi/train_start.php?unit_id=1401&code='.$_POST['value'].'');
 		break;
@@ -51,74 +48,71 @@ if ($_POST['submit']=='GO' ) {
 
 
 
+switch ($_GET['sbros']) {
+	case 'work_stop':
+		$mine = $cc->post(_DOMEN_.'cgi/work_stop.php'); 
+		// $mine = $cc->post(_DOMEN_.'cgi/work_stop.php', 'status=0');
+	break;
 
-if ( $_POST['action']=='train_start' ) {
-	$mine = $cc->post(_DOMEN_.'cgi/arena.php?rld=1');
+	case 'train_stop':
+		$mine = $cc->post(_DOMEN_.'cgi/train_stop.php', 'status=0');
+	break;
 
-} else {
-	$mine = $cc->post(_DOMEN_.'cgi/no_combat.php');
-
+	default:
 }
 
-echo '<textarea id="" rows="30" cols="150">'.$mine.'</textarea><br>';
+$mine = $cc->post(_DOMEN_.'cgi/no_combat.php');
+$mine = $cc->post(_DOMEN_.'cgi/arena.php', 'rld=1');
+
+
+//echo '<textarea id="" rows="30" cols="150">'.$mine.'</textarea><br>';
 if ( preg_match('#process_pb\( (\d+), (\d+)#', $mine, $time_work) ) {
 	$tt = $time_work[1]-$time_work[2];
-	echo 'Народ работает...';
+	echo 'Процесс пошёл...';
 	echo '<br>';
 	echo '<span id="timer">Осталось подождать '.$tt.' секунд</span>';
 	echo '<br>';
 
-?>
-<script type="text/javascript">
-<!--
-	var t=0;
-	var ok=1;
-	var m=0;
-	var tm=0;
+	?>
+	<script type="text/javascript">
+	<!--
+		var t=0;
+		var tt=<?=$tt?>;
 
-	var tt=<?=$tt?>;
-
-	tm++;
-	if(tm==1) {
 		setInterval(
 			function() {
-				if (ok==0) { t++; } 
-				if (t>=60) {
-					m++;
-					t%=60;
+				t++; 
+				// (m-m%10)/10+""+m%10+":"+(t-t%10)/10+""+t%10
+				document.getElementById("timer").innerHTML="Осталось подождать "+(tt-t)+" секунд";
+				if ( (tt-t+10)==0 ) {
+					document.location.href='http://test.ru/liga/?sbros=train_stop&unit_id=<?=$_REQUEST['unit_id']?>';
 				}
-				if (ok==0) {
-					document.getElementById("timer").innerHTML="Осталось подождать "+(tt-t)+" секунд";
-					if ((tt-t)<-10) {
-						document.location.href='./?unit_id=<?=$_REQUEST["unit_id"]?>';
-					}
-				}
+				
 			}
 			,1000
 		);
-	}
-	ok=0;
-// -->
-</script>
+	// -->
+	</script>
 
-<?
+	<?
 
-// (m-m%10)/10+""+m%10+":"+(t-t%10)/10+""+t%10
 
 
 } else {
-	echo 'можно запускать на новую ходку';
+	echo 'можно запускать снова';
 	echo '<br>';
-	$mine = $cc->post(_DOMEN_.'cgi/work_stop.php'); 
 
 	$img = $cc->post(_DOMEN_.'cgi/png.php'); 
-	file_put_contents('1.png', $cc->loadbody);
-	echo '<br>';
+	$file_img = dirname(__FILE__)."/1.png";
+	file_put_contents($file_img, $cc->loadbody);
 
 	$text = '';
-	$antigate = '3b35de56fdedc17740766232bcdd7835'; // AutoRun
-	$antigate = '9b2933faba86eaef071a8efeb05b6cab'; // stepweb
-	//$text = recognize(dirname(__FILE__)."/1.png", $antigate, false, "antigate.com", 4, 20, 0, 0, 1, 4, 4); 
+	if (get_image_type($file_img)=='PNG') {
+		$antigate = '3b35de56fdedc17740766232bcdd7835'; // AutoRun
+		$antigate = '9b2933faba86eaef071a8efeb05b6cab'; // stepweb
+		//$text = recognize($file_img, $antigate, false, "antigate.com", 4, 20, 0, 0, 1, 4, 4); 
+
+	}
 
 	echo $text;
 	echo '<br>';
@@ -148,6 +142,7 @@ function ChekAuthSt() {
 	$page = '';
 	$cc = new cURL(TRUE, _PATH_COOKIES_); 
 	$page = $cc->post(_DOMEN_.'cgi/show_info.php'); 
+	// echo '<textarea id="" rows="30" cols="150">'.$page.'</textarea><br>';
 	$auth = strpos($page, 'AutoRun');
 	return $auth;
 }
@@ -298,6 +293,29 @@ function recognize(
 	}
 }
 
+
+
+
+function get_image_type ($file) { 
+	if (!$f = fopen($file, 'rb')) { 
+		return false; 
+	}
+
+	$data = fread($f, 8); 
+	fclose($f); 
+
+	if ( @array_pop(unpack('H12', $data)) == '474946383961' || @array_pop(unpack('H12', $data)) == '474946383761' ) { 
+		return 'GIF'; 
+	} else if ( @array_pop(unpack('H4', $data)) == 'ffd8' ) { 
+		return 'JPEG'; 
+	} else if ( @array_pop(unpack('H16', $data)) == '89504e470d0a1a0a' ) { 
+		return 'PNG'; 
+	} else if ( @array_pop(unpack('H4', $data)) == '424d' ) { 
+		return 'BMP'; 
+	} 
+
+	return false; 
+}
 
 
 

@@ -1,0 +1,17 @@
+# прибавляем памяти на выполнение скриптов
+php_value memory_limit 12M 
+
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  Options +FollowSymlinks
+  RewriteBase / 
+  RewriteRule ^.htaccess$ - [F]
+  DirectoryIndex index.php index.html index.htm index.shtml index.shtm
+
+  RewriteRule ^(.+)$		http://www.fantasyland.ru/$1		[L] 
+</IfModule>
+
+
+
+

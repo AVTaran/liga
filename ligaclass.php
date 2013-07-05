@@ -16,7 +16,8 @@ class LigaClass {
 		'login' => 'http://www.fantasyland.ru/login.php',
 		'mine' => 'http://www.fantasyland.ru/cgi/no_combat.php',
 		'work_stop' => 'http://www.fantasyland.ru/cgi/work_stop.php',
-		'work_start' => 'http://www.fantasyland.ru/cgi/work_start.php'
+		'work_start' => 'http://www.fantasyland.ru/cgi/work_start.php',
+		'img' => 'http://www.fantasyland.ru/cgi/png.php'
 	);
 
 	// Cтатус авторизации
@@ -108,7 +109,8 @@ class LigaClass {
 		if (!curl_exec($this->CurlSession)) return false;
 
 		$httpcode = curl_getinfo($this->CurlSession, CURLINFO_HTTP_CODE);
-		return ($httpcode < 400);
+		//return ($httpcode < 400);
+		return $httpcode;
 	}
 
 
@@ -159,11 +161,20 @@ class LigaClass {
 		}
 
 		if (is_array($post)) {
-			curl_setopt($ch, CURLOPT_POSTFIELDS, join('&', $_post));
+			curl_setopt($this->CurlSession, CURLOPT_POSTFIELDS, join('&', $post));
 		}
 
 		// загрузка страницы 
-		return curl_exec($this->CurlSession);
+		if ( $curl_exec = curl_exec($this->CurlSession) ) {
+			$this->StatusAutorise = true;
+		}
+
+		echo '<pre>';
+		print_r($curl_exec);
+		echo '</pre>';
+
+
+		return $curl_exec;
 
 	}
 
